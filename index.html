@@ -6,13 +6,13 @@
   <title>情感辨識機</title>
   <style>
       :root {
-          --primary-color: #f8b3c4;      /* 柔和的玫瑰粉 */
-          --secondary-color: #ffd1dc;    /* 淡粉色 */
-          --bg-color: #fff5f7;           /* 極淺的粉紅背景 */
-          --text-color: #d4788f;         /* 深玫瑰粉文字 */
-          --shadow-color: rgba(248, 179, 196, 0.3); /* 柔和的陰影色 */
-          --hover-color: #f7c7d3;        /* 滑鼠懸停色 */
-          --border-color: #ffc0cb;       /* 邊框色 */
+          --primary-color: #f8b3c4;
+          --secondary-color: #ffd1dc;
+          --bg-color: #fff5f7;
+          --text-color: #d4788f;
+          --shadow-color: rgba(248, 179, 196, 0.3);
+          --hover-color: #f7c7d3;
+          --border-color: #ffc0cb;
       }
 
       * {
@@ -160,6 +160,7 @@
           margin-top: 30px;
           display: none;
           box-shadow: 0 4px 15px var(--shadow-color);
+          table-layout: fixed;
       }
 
       .result-table.show {
@@ -170,6 +171,7 @@
       .result-table td {
           border: 1px solid var(--secondary-color);
           padding: 15px;
+          word-wrap: break-word;
       }
 
       .result-table th {
@@ -186,33 +188,47 @@
           color: white;
           text-align: center;
           vertical-align: middle;
-          width: 120px;
+          width: 80px;
           font-size: 1.1rem;
       }
 
-      .result-table td:first-child span {
-          display: block;
-          line-height: 1.4;
-      }
-
-      .result-table td {
-          background-color: white;
-          line-height: 1.6;
-      }
-
-      .result-table tr:nth-child(even) td:not(:first-child) {
-          background-color: var(--bg-color);
+      .result-table th:not(:first-child),
+      .result-table td:not(:first-child) {
+          width: auto;
       }
 
       @media (max-width: 768px) {
           .container {
               padding: 15px;
+              margin: 10px;
+          }
+
+          h1 {
+              font-size: 1.8rem;
+              margin-bottom: 20px;
+          }
+
+          .selection-area {
+              padding: 15px;
+          }
+
+          .emotion-grid {
+              gap: 10px;
+          }
+
+          .emotion-row {
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 8px;
           }
 
           .emotion-btn {
-              padding: 10px 20px;
-              font-size: 1rem;
-              min-width: 90px;
+              padding: 8px 15px;
+              font-size: 0.9rem;
+              min-width: calc(50% - 10px);
+              margin: 2px;
+              flex-grow: 1;
+              max-width: calc(50% - 10px);
           }
 
           .action-btn {
@@ -220,10 +236,60 @@
               font-size: 1rem;
           }
 
+          .result-table {
+              font-size: 0.9rem;
+          }
+
           .result-table th,
           .result-table td {
-              padding: 10px;
+              padding: 8px;
+          }
+
+          .result-table th {
+              font-size: 1rem;
+          }
+
+          .result-table td:first-child {
+              width: 60px;
               font-size: 0.9rem;
+          }
+
+          .result-table td {
+              font-size: 0.85rem;
+              line-height: 1.4;
+          }
+      }
+
+      @media (min-width: 769px) and (max-width: 1024px) {
+          .container {
+              padding: 20px;
+              margin: 15px;
+          }
+
+          .emotion-btn {
+              padding: 10px 25px;
+              font-size: 1.1rem;
+              min-width: 100px;
+          }
+
+          .result-table td:first-child {
+              width: 70px;
+          }
+
+          .result-table th,
+          .result-table td {
+              padding: 12px;
+          }
+      }
+
+      @media (min-width: 1025px) {
+          .container {
+              max-width: 1200px;
+          }
+
+          .emotion-grid {
+              max-width: 800px;
+              margin: 0 auto;
           }
       }
   </style>
@@ -323,126 +389,94 @@
           "喜歡": {
               "定義": "穩定且持續的情感吸引與關心",
               "起因": "長期互動中建立的相互了解與情感連結",
-              "情感深度": "高：關心與理解逐漸深化，進入穩定情感階段",
-              "理性程度": "中：有情感也有思考，會斟酌對方是否合適",
-              "互動情形": "願意投入關心、了解對方，也希望被了解",
-              "結果": "更多交流接觸，分享生活點滴，可能發展為戀人關係",
-              "危機": "若缺乏回應或進展，可能產生挫折、忌妒、過度在意",
-              "常見誤解": "誤以為喜歡在乎對方的感情即是愛"
+              "情感深度": "高：關心與理解逐漸深化",
+              "理性程度": "中：情感與理性並存",
+              "互動情形": "主動且頻繁的互動，願意為對方付出時間與心力",
+              "結果": "可能發展為更深層的感情，或因各種因素而結束",
+              "危機": "過度期待可能帶來失望，或因害怕失去而變得不安",
+              "常見誤解": "以為喜歡就一定要在一起"
           },
           "愛": {
-              "定義": "深刻且包容的情感關係，願意為對方付出與承擔",
-              "起因": "長期互動、共同經歷、對對方全面的理解與接納、深刻連結",
-              "情感深度": "極高：深層理解與承諾，伴隨信任與願意共同承擔未來",
-              "理性程度": "中高：感性與理性並重，會考慮彼此未來與責任",
-              "互動情形": "有深入的情感交流與承諾，互相理解與支持",
-              "結果": "互相遷就磨合，為對方著想，提供成長空間，建立穩定長久的關係，甚至共度人生",
-              "危機": "犧牲自我、依附過深、過度控制，容易引發衝突與壓力",
-              "常見誤解": "忽略愛是需要雙方努力與磨合的過程，不只是浪漫與激情"
+              "定義": "深層且穩定的情感連結，包含關懷、尊重與承諾",
+              "起因": "深入了解後產生的真摯情感與價值認同",
+              "情感深度": "極高：情感深厚且穩定",
+              "理性程度": "高：能理性看待關係，同時保有深厚情感",
+              "互動情形": "穩定且深入的互動，願意共同面對困難",
+              "結果": "若雙方持續經營，可發展為長期穩定的關係",
+              "危機": "可能因過度理想化而忽略現實問題",
+              "常見誤解": "認為愛情就是一切，忽略了自我成長的重要性"
           }
       };
 
+      // 獲取DOM元素
       const emotionButtons = document.querySelectorAll('.emotion-btn');
+      const countSpan = document.getElementById('count');
       const compareBtn = document.getElementById('compare-btn');
       const resetBtn = document.getElementById('reset-btn');
-      const countSpan = document.getElementById('count');
       const resultTable = document.getElementById('result-table');
+
       let selectedEmotions = [];
 
-      function updateButtons() {
+      // 更新選擇計數和按鈕狀態
+      function updateCount() {
           countSpan.textContent = selectedEmotions.length;
-          compareBtn.disabled = selectedEmotions.length < 2;
+          compareBtn.disabled = selectedEmotions.length < 2 || selectedEmotions.length > 4;
       }
 
-      function resetSelection() {
-          selectedEmotions = [];
-          emotionButtons.forEach(button => button.classList.remove('selected'));
-          resultTable.innerHTML = '';
-          resultTable.classList.remove('show');
-          updateButtons();
-      }
-
+      // 處理情感按鈕點擊
       emotionButtons.forEach(button => {
           button.addEventListener('click', () => {
-              const emotion = button.dataset.emotion;
+              const emotion = button.getAttribute('data-emotion');
               
               if (button.classList.contains('selected')) {
+                  // 取消選擇
                   button.classList.remove('selected');
                   selectedEmotions = selectedEmotions.filter(e => e !== emotion);
               } else if (selectedEmotions.length < 4) {
+                  // 新增選擇
                   button.classList.add('selected');
                   selectedEmotions.push(emotion);
               }
               
-              updateButtons();
-          });
-      });
+              updateCount();            
+          });            
+      });            
 
-      resetBtn.addEventListener('click', resetSelection);
+      // 生成比較表格
+      function generateTable() {
+          if (selectedEmotions.length < 2) return;
 
-      compareBtn.addEventListener('click', () => {
-          if (selectedEmotions.length >= 2) {
-              generateComparisonTable(selectedEmotions);
-          }
-      });
+          // 表格標題
+          let html = '<tr><th>面向</th>';
+          selectedEmotions.forEach(emotion => {
+              html += `<th>${emotion}</th>`;
+          });                  
+          html += '</tr>';
 
-      function generateComparisonTable(emotions) {
-          resultTable.innerHTML = '';
-          
-          const thead = document.createElement('thead');
-          const headerRow = document.createElement('tr');
-          
-          const thEmpty = document.createElement('th');
-          thEmpty.innerHTML = '<span>比較</span><span>項目</span>';
-          headerRow.appendChild(thEmpty);
-          
-          emotions.forEach(emotion => {
-              const th = document.createElement('th');
-              th.textContent = emotion;
-              headerRow.appendChild(th);
-          });
-          
-          thead.appendChild(headerRow);
-          resultTable.appendChild(thead);
-          
-          const tbody = document.createElement('tbody');
-          const comparisonItems = [
-              {text: "定義", display: "定\u3000義"},
-              {text: "起因", display: "起\u3000因"},
-              {text: "情感深度", display: "情感\n深度"},
-              {text: "理性程度", display: "理性\n程度"},
-              {text: "互動情形", display: "互動\n情形"},
-              {text: "結果", display: "結\u3000果"},
-              {text: "危機", display: "危\u3000機"},
-              {text: "常見誤解", display: "常見\n誤解"}
-          ];
-          
-          comparisonItems.forEach(item => {
-              const row = document.createElement('tr');
-              
-              const itemCell = document.createElement('td');
-              itemCell.innerHTML = item.display.includes('\n') 
-                  ? `<span>${item.display.split('\n').join('</span><span>')}</span>`
-                  : item.display;
-              row.appendChild(itemCell);
-              
-              emotions.forEach(emotion => {
-                  const dataCell = document.createElement('td');
-                  dataCell.textContent = emotionData[emotion][item.text] || '無資料';
-                  row.appendChild(dataCell);
-              });
-              
-              tbody.appendChild(row);
-          });
-          
-          resultTable.appendChild(tbody);
+          // 表格內容
+          const aspects = ["定義", "起因", "情感深度", "理性程度", "互動情形", "結果", "危機", "常見誤解"];
+          aspects.forEach(aspect => {
+              html += `<tr><td>${aspect}</td>`;
+              selectedEmotions.forEach(emotion => {
+                  html += `<td>${emotionData[emotion][aspect]}</td>`;
+              });                  
+              html += '</tr>';
+          });                  
+
+          resultTable.innerHTML = html;
           resultTable.classList.add('show');
-          
-          resultTable.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-          });
       }
-  </script>
-</body>
-</html>
+
+      // 比較按鈕點擊事件
+      compareBtn.addEventListener('click', generateTable);
+
+      // 重置按鈕點擊事件
+      resetBtn.addEventListener('click', () => {
+          emotionButtons.forEach(button => button.classList.remove('selected'));
+          selectedEmotions = [];
+          updateCount();                  
+          resultTable.classList.remove('show');
+      });                  
+  </script>                  
+</body>                  
+</html>>                  
